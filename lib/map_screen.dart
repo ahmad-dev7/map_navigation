@@ -1,13 +1,11 @@
 import 'dart:math' as math;
 import 'package:avatar_glow/avatar_glow.dart';
-import 'package:avatar_map_navigation/animated_marker.dart';
 import 'package:avatar_map_navigation/custom_search_bar.dart';
 import 'package:avatar_map_navigation/my_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
-import 'package:latlong2/latlong.dart';
 
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
