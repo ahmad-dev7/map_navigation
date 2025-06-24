@@ -1,5 +1,4 @@
 import 'package:avatar_map_navigation/map/controller.dart';
-import 'package:avatar_map_navigation/my_controller.dart';
 import 'package:avatar_map_navigation/search_result_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +6,8 @@ import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
 
-class CustomSearchBar extends StatelessWidget {
-  const CustomSearchBar({super.key});
+class RouteSearchBar extends StatelessWidget {
+  const RouteSearchBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,24 +21,27 @@ class CustomSearchBar extends StatelessWidget {
       width: 600,
       debounceDelay: const Duration(milliseconds: 500),
       automaticallyImplyBackButton: false,
-      onQueryChanged: myController.searchDestination,
-      controller: myController.searchBarController,
+      onQueryChanged: ctrl.searchDestination,
+      controller: ctrl.searchController,
       leadingActions: [FloatingSearchBarAction.back(showIfClosed: false)],
       builder: (context, transition) {
         return Material(
           borderRadius: BorderRadius.circular(10),
           child: Obx(() {
-            if (myController.searchText.value.isEmpty) {
+            var isLoading = ctrl.isLoadingSearchOptions.value;
+            var query = ctrl.searchController.query;
+            var destinationOptions = ctrl.destinationOptions;
+            if (query.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text('Start typing to search...'),
               );
-            } else if (myController.isLoading.value) {
+            } else if (isLoading) {
               return Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Center(child: CupertinoActivityIndicator()),
               );
-            } else if (myController.destinationOptions.isEmpty) {
+            } else if (destinationOptions.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text('No results found.'),
@@ -51,7 +53,7 @@ class CustomSearchBar extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children:
-                      myController.destinationOptions.map((e) {
+                      destinationOptions.map((e) {
                         e as PlaceFeature;
                         return ListTile(
                           title: Text(
@@ -59,22 +61,15 @@ class CustomSearchBar extends StatelessWidget {
                           ),
                           onTap: () {
                             Get.log(e.geometry.coordinates.toString());
-                            myController.searchBarController.close();
+                            ctrl.searchController.close();
 
-                            ctrl.fetchRoutes(
-                              destination: LatLng(
-                                e.geometry.coordinates[1],
-                                e.geometry.coordinates[0],
-                              ),
+                            ctrl.destinationLocation.value = LatLng(
+                              e.geometry.coordinates[1],
+                              e.geometry.coordinates[0],
                             );
-
-                            // TODO: Draw polyline and fit camera bound within source and destination
-                            // myController.drawPolyline(
-                            //   destination: LatLng(
-                            //     e.geometry.coordinates[1],
-                            //     e.geometry.coordinates[0],
-                            //   ),
-                            // );
+                            ctrl.fetchRoutes(
+                              destination: ctrl.destinationLocation.value!,
+                            );
                           },
                         );
                       }).toList(),
