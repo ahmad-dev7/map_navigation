@@ -1,4 +1,5 @@
 import 'package:avatar_map_navigation/map/components/map_options.dart';
+import 'package:avatar_map_navigation/map/components/navigation_instruction.dart';
 import 'package:avatar_map_navigation/map/components/search_bar.dart';
 import 'package:avatar_map_navigation/map/components/markers.dart';
 import 'package:avatar_map_navigation/map/controller.dart';
@@ -17,12 +18,6 @@ class MapPage extends StatelessWidget {
         if (ctrl.userLocation.value == null) {
           return Center(
             child: CircularProgressIndicator(semanticsLabel: 'Loading map'),
-          );
-        }
-
-        if (ctrl.isFetchingRoutes.value) {
-          return Center(
-            child: CircularProgressIndicator(semanticsLabel: 'Fetching routes'),
           );
         }
 
@@ -47,7 +42,13 @@ class MapPage extends StatelessWidget {
                 ),
               ],
             ),
-            RouteSearchBar(),
+            if (ctrl.isFetchingRoutes.value)
+              Center(
+                child: CircularProgressIndicator(
+                  semanticsLabel: 'Fetching routes',
+                ),
+              ),
+            if (!ctrl.isNavigationStarted.value) RouteSearchBar(),
             if (ctrl.isNavigationStarted.value)
               Positioned(
                 bottom: 10,
@@ -67,6 +68,15 @@ class MapPage extends StatelessWidget {
                 icon: Icon(Icons.location_searching),
               ),
             ),
+
+            if (ctrl.isNavigationStarted.value)
+              // Add the navigation instructions widget
+              Positioned(
+                top: MediaQuery.of(context).padding.top,
+                left: 0,
+                right: 0,
+                child: NavigationInstructionsWidget(controller: ctrl),
+              ),
           ],
         );
       }),
