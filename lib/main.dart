@@ -2,6 +2,7 @@ import 'package:avatar_map_navigation/MultiRoute/app_controller.dart';
 import 'package:avatar_map_navigation/MultiRoute/map_screen.dart';
 import 'package:avatar_map_navigation/map/controller.dart';
 import 'package:avatar_map_navigation/map/map_page.dart';
+import 'package:avatar_map_navigation/mapview/triphome.dart';
 import 'package:avatar_map_navigation/my_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/instance_manager.dart';
@@ -23,7 +24,8 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Map',
       debugShowCheckedModeBanner: false,
-      home: MapPage(),
+      // home: MapPage(),
+      home: TripLogHomePage(),
     );
   }
 }
