@@ -1,7 +1,6 @@
-
 import 'package:hive_flutter/hive_flutter.dart';
 
-  part 'turn_log_model.g.dart';
+part 'turn_log_model.g.dart';
 
 enum TurnDirection { left, right, uTurn, straight }
 
@@ -19,11 +18,14 @@ class TurnLog extends HiveObject {
   @HiveField(3)
   final TurnDirection direction;
 
+  @HiveField(4)
+  String instruction;
+
   TurnLog({
     required this.lat,
     required this.long,
     required this.timestamp,
     required this.direction,
+    required this.instruction,
   });
 }
-

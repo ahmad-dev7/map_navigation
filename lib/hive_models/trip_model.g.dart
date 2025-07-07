@@ -6,7 +6,7 @@ part of 'trip_model.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class TripAdapter extends TypeAdapter<TripLog> {
+class TripLogAdapter extends TypeAdapter<TripLog> {
   @override
   final int typeId = 1;
 
@@ -68,7 +68,7 @@ class TripAdapter extends TypeAdapter<TripLog> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TripAdapter &&
+      other is TripLogAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

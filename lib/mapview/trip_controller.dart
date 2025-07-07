@@ -33,7 +33,8 @@ class TripController extends GetxController {
 
     final timestamp = DateTime.now();
     final newTrip = TripLog(
-      tripId: 'T${timestamp.year}${timestamp.month.toString().padLeft(2, '0')}${timestamp.day.toString().padLeft(2, '0')}${timestamp.hour}${timestamp.minute}${timestamp.second}',
+      tripId:
+          'T${timestamp.year}${timestamp.month.toString().padLeft(2, '0')}${timestamp.day.toString().padLeft(2, '0')}${timestamp.hour}${timestamp.minute}${timestamp.second}',
       startTime: timestamp,
       startLat: 28.6139,
       startLong: 77.2090,
@@ -45,12 +46,14 @@ class TripController extends GetxController {
           long: 77.2100,
           timestamp: timestamp.add(const Duration(seconds: 5)),
           direction: TurnDirection.left,
+          instruction: ": Turn left onto Sakal Bhavan Marg",
         ),
         TurnLog(
           lat: 28.6155,
           long: 77.2120,
           timestamp: timestamp.add(const Duration(seconds: 10)),
           direction: TurnDirection.right,
+          instruction: ": Turn left onto Sakal Bhavan Marg",
         ),
       ],
       endLat: 28.6200,
@@ -59,14 +62,20 @@ class TripController extends GetxController {
       endReason: 'Trip in progress',
       isTripCompleted: false,
     );
-    user.trips = [...user.trips, newTrip]; // 🔁 reassign the list (not just add)
-    await userBox.put(userId, user);       // ✅ now it will notify listeners
+    user.trips = [
+      ...user.trips,
+      newTrip,
+    ]; // 🔁 reassign the list (not just add)
+    await userBox.put(userId, user); // ✅ now it will notify listeners
 
     currentTrip = user.trips.last;
     isTripOngoing.value = true;
 
     print('✅ Trip started for user: $userId - ${currentTrip.tripId}');
-    _timer = Timer.periodic(const Duration(seconds: 5), (_) => updateTripData());
+    _timer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) => updateTripData(),
+    );
   }
 
   Future<void> updateTripData() async {
@@ -78,10 +87,13 @@ class TripController extends GetxController {
       long: 73.0 + turnCount * 0.001,
       timestamp: DateTime.now(),
       direction: TurnDirection.values[turnCount % TurnDirection.values.length],
+      instruction: ": Turn left onto Sakal Bhavan Marg",
     );
 
     currentTrip.turnLogs.add(newLog);
-    print('📍 TurnLog #$turnCount: (${newLog.lat}, ${newLog.long}) ➝ ${newLog.direction}');
+    print(
+      '📍 TurnLog #$turnCount: (${newLog.lat}, ${newLog.long}) ➝ ${newLog.direction}',
+    );
 
     final userId = await _hiveService.getLoggedInUserId();
     if (userId == null) return;

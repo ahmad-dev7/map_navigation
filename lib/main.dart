@@ -22,7 +22,7 @@ void main() async {
 
   // Register Hive Adapters
   Hive.registerAdapter(UserAdapter());
-  Hive.registerAdapter(TripAdapter());
+  Hive.registerAdapter(TripLogAdapter());
   Hive.registerAdapter(TurnLogAdapter());
   Hive.registerAdapter(TurnDirectionAdapter());
 

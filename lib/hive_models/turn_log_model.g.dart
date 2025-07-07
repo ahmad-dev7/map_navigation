@@ -21,13 +21,14 @@ class TurnLogAdapter extends TypeAdapter<TurnLog> {
       long: fields[1] as double,
       timestamp: fields[2] as DateTime,
       direction: fields[3] as TurnDirection,
+      instruction: fields[4] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, TurnLog obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.lat)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class TurnLogAdapter extends TypeAdapter<TurnLog> {
       ..writeByte(2)
       ..write(obj.timestamp)
       ..writeByte(3)
-      ..write(obj.direction);
+      ..write(obj.direction)
+      ..writeByte(4)
+      ..write(obj.instruction);
   }
 
   @override

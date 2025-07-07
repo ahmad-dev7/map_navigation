@@ -111,12 +111,14 @@ TripLog getSampleTrip(String tripId) {
         long: 72.8811,
         timestamp: DateTime.now(),
         direction: TurnDirection.left,
+        instruction: "Turn left onto Sakal Bhavan Marg"
       ),
       TurnLog(
         lat: 19.0761,
         long: 72.8790,
         timestamp: DateTime.now(),
         direction: TurnDirection.right,
+        instruction: "Turn left onto Sakal Bhavan Marg"
       ),
     ],
     endLat: 19.0801,
