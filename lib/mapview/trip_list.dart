@@ -32,7 +32,6 @@ class _TripLogViewerScreenState extends State<TripLogViewerScreen3> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: ListView(
@@ -59,19 +58,19 @@ class _TripLogViewerScreenState extends State<TripLogViewerScreen3> {
   Widget _buildTripCard(TripLog trip, bool isOpen) {
     final dateFormat = DateFormat('yyyy-MM-dd');
     final timeFormat = DateFormat('hh:mm a');
-    Icon _iconForDirection(TurnDirection dir) {
-      switch (dir) {
-        case TurnDirection.left:
-          return const Icon(Icons.turn_left, size: 20);
-        case TurnDirection.right:
-          return const Icon(Icons.turn_right, size: 20);
-        case TurnDirection.uTurn:
-          return const Icon(Icons.u_turn_left, size: 20);
-        case TurnDirection.straight:
-        default:
-          return const Icon(Icons.arrow_upward, size: 20);
-      }
-    }
+    // Icon _iconForDirection(TurnDirection dir) {
+    //   switch (dir) {
+    //     case TurnDirection.left:
+    //       return const Icon(Icons.turn_left, size: 20);
+    //     case TurnDirection.right:
+    //       return const Icon(Icons.turn_right, size: 20);
+    //     case TurnDirection.uTurn:
+    //       return const Icon(Icons.u_turn_left, size: 20);
+    //     case TurnDirection.straight:
+    //     default:
+    //       return const Icon(Icons.arrow_upward, size: 20);
+    //   }
+    // }
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -157,13 +156,36 @@ class _TripLogViewerScreenState extends State<TripLogViewerScreen3> {
                 child: Column(
                   children:
                       trip.turnLogs.map((log) {
-                        return ListTile(
-                          dense: true,
-                          visualDensity: VisualDensity.compact,
-                          trailing: _iconForDirection(log.direction),
-                          title: Text("Lat: ${log.lat} | Long: ${log.long}"),
-                          subtitle: Text(
-                            "🕒 ${timeFormat.format(log.timestamp)}",
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6.0,
+                            horizontal: 8.0,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "📝 Instruction: ${log.instruction}",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "📍 Lat: ${log.lat.toStringAsFixed(6)} | Long: ${log.long.toStringAsFixed(6)}",
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "🕒 ${timeFormat.format(log.timestamp)}",
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const Divider(thickness: 0.8),
+                            ],
                           ),
                         );
                       }).toList(),

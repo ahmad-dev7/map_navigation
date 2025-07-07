@@ -46,8 +46,9 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Map',
       debugShowCheckedModeBanner: false,
-      home: MapPage(),
+      // home: MapPage(),
       //home: SignUpScreen(),
+      home: LoginScreen(),
     );
   }
 }
