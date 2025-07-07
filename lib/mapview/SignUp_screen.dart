@@ -171,7 +171,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               backgroundColor: Colors.deepPurple,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
-                            child: const Text('Sign Up', style: TextStyle(fontSize: 16)),
+                            child: const Text('Sign Up', style: TextStyle(fontSize: 16,color:Colors.white)),
                           ),
                 ),
                 const SizedBox(height: 30),
@@ -188,7 +188,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       child: const Text(
                         "Log In",
                         style: TextStyle(
-                          color: Colors.deepPurple,
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

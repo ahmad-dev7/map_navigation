@@ -12,7 +12,7 @@ import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
-
+//TODO: visit stopNvaigation method for trip log flow [Line 735]
 late Controller ctrl;
 
 class Controller extends GetxController with GetTickerProviderStateMixin {
@@ -700,6 +700,7 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
 
   // Update your existing stopNavigation method
   void stopNavigation() {
+    // Reset values
     isNavigationStarted.value = false;
     selectedRouteIndex.value = -1;
     polylines.clear();
@@ -733,6 +734,43 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
 
     // Stop marker animation
     _markerAnimationController.stop();
+
+    //TODO: Store trip log in Hive 
+    //INFO:  TurnDirection is enum with following values {right, left, uTurn, straight}
+    //! TripLog model 
+    // TripLog(
+    //       tripId: 'T20250624001', // current time stamp
+    //       startTime: DateTime(2025, 6, 24, 9, 15), // Time when user clicks [Start Navigation]
+    //       startLat: 19.0728, // start location lat 
+    //       startLong: 72.8826, // start location long
+    //       destinationsBefore: ['Gateway of India, Mumbai'], // 
+    //       destinationsDuring: ['Marine Drive, Mumbai'],
+    //       turnLogs: [
+    //         TurnLog(
+    //           lat: 19.0745,
+    //           long: 72.8811,
+    //           timestamp: DateTime(2025, 6, 24, 9, 17),
+    //           direction: TurnDirection.left,
+    //         ),
+    //         TurnLog(
+    //           lat: 19.0761,
+    //           long: 72.8790,
+    //           timestamp: DateTime(2025, 6, 24, 9, 19),
+    //           direction: TurnDirection.right
+    //         ),
+    //         TurnLog(
+    //           lat: 19.0780,
+    //           long: 72.8765,
+    //           timestamp: DateTime(2025, 6, 24, 9, 22),
+    //           direction: TurnDirection.uTurn,
+    //         ),
+    //       ],
+    //       endLat: 19.0801, // last location lat
+    //       endLong: 72.8750, // last location long
+    //       endTime: DateTime(2025, 6, 24, 9, 30), // Time when this function was called [current time]
+    //       endReason: 'App closed manually by user', // Reason for ending trip  
+    //       isTripCompleted: true, // true if user reached destination, false if trip was ended manually
+    //     ),
 
     // Reset map rotation to north
     if (userLocation.value != null) {
