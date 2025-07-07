@@ -1,15 +1,37 @@
-import 'package:avatar_map_navigation/MultiRoute/app_controller.dart';
-import 'package:avatar_map_navigation/MultiRoute/map_screen.dart';
 import 'package:avatar_map_navigation/map/controller.dart';
-import 'package:avatar_map_navigation/map/map_page.dart';
-import 'package:avatar_map_navigation/mapview/triphome.dart';
-import 'package:avatar_map_navigation/my_controller.dart';
+import 'package:avatar_map_navigation/mapview/SignUp_screen.dart';
+import 'package:avatar_map_navigation/mapview/loginScreen.dart';
+import 'package:avatar_map_navigation/MultiRoute/map_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/instance_manager.dart';
-import 'package:get/route_manager.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'hive_models/enum_adapter.dart';
+import 'hive_models/trip_model.dart';
+import 'hive_models/turn_log_model.dart';
+import 'hive_models/user_model.dart';
+import 'map/map_page.dart';
+import 'mapview/dummy_data.dart';
+import 'mapview/hiveService.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  //initialize hive
+  await Hive.initFlutter();
+
+  // Register Hive Adapters
+  Hive.registerAdapter(UserAdapter());
+  Hive.registerAdapter(TripAdapter());
+  Hive.registerAdapter(TurnLogAdapter());
+  Hive.registerAdapter(TurnDirectionAdapter());
+
+
+  // Open Box
+  await Hive.openBox<User>('users');
+
+  //for dummy data purpose
+  await addDummyUsers();
   //myController = Get.put(MyController());
   //appController = Get.put(AppController());
   ctrl = Get.put(Controller());
@@ -25,7 +47,7 @@ class MyApp extends StatelessWidget {
       title: 'Map',
       debugShowCheckedModeBanner: false,
       // home: MapPage(),
-      home: TripLogHomePage(),
+      home: SignUpScreen(),
     );
   }
 }

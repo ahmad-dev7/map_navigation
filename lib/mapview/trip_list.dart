@@ -2,7 +2,11 @@ import 'package:avatar_map_navigation/hive_models/trip_model.dart';
 import 'package:avatar_map_navigation/hive_models/turn_log_model.dart';
 import 'package:avatar_map_navigation/hive_models/user_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
+
+import 'newTripSesson_screen.dart';
 
 class TripLogViewerScreen3 extends StatefulWidget {
   final User user;
@@ -28,12 +32,7 @@ class _TripLogViewerScreenState extends State<TripLogViewerScreen3> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text('🚗 Trip Log Viewer'),
-        backgroundColor: Colors.indigo,
-        elevation: 0,
-      ),
+
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: ListView(
@@ -47,7 +46,7 @@ class _TripLogViewerScreenState extends State<TripLogViewerScreen3> {
               ),
             ),
             const SizedBox(height: 12),
-            ...widget.user.trips.map((trip) {
+            ...widget.user.trips.reversed.map((trip) {
               final isOpen = _expanded.contains(trip.tripId);
               return _buildTripCard(trip, isOpen);
             }),
