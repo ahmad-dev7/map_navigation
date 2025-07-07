@@ -6,17 +6,17 @@ part of 'trip_model.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class TripAdapter extends TypeAdapter<Trip> {
+class TripAdapter extends TypeAdapter<TripLog> {
   @override
   final int typeId = 1;
 
   @override
-  Trip read(BinaryReader reader) {
+  TripLog read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Trip(
+    return TripLog(
       tripId: fields[0] as String,
       startTime: fields[1] as DateTime,
       startLat: fields[2] as double,
@@ -33,7 +33,7 @@ class TripAdapter extends TypeAdapter<Trip> {
   }
 
   @override
-  void write(BinaryWriter writer, Trip obj) {
+  void write(BinaryWriter writer, TripLog obj) {
     writer
       ..writeByte(12)
       ..writeByte(0)

@@ -10,7 +10,7 @@ class User extends HiveObject {
   String userId;
 
   @HiveField(1)
-  List<Trip> trips;
+  List<TripLog> trips;
 
   User({required this.userId, required this.trips});
 }

@@ -11,7 +11,7 @@ class TripController extends GetxController {
 
   RxBool isTripOngoing = false.obs;
   Timer? _timer;
-  late Trip currentTrip;
+  late TripLog currentTrip;
   int turnCount = 0;
 
   // Start trip for logged-in user
@@ -32,7 +32,7 @@ class TripController extends GetxController {
     }
 
     final timestamp = DateTime.now();
-    final newTrip = Trip(
+    final newTrip = TripLog(
       tripId: 'T${timestamp.year}${timestamp.month.toString().padLeft(2, '0')}${timestamp.day.toString().padLeft(2, '0')}${timestamp.hour}${timestamp.minute}${timestamp.second}',
       startTime: timestamp,
       startLat: 28.6139,

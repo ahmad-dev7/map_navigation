@@ -1,5 +1,3 @@
-
-
 import 'package:avatar_map_navigation/hive_models/trip_model.dart';
 import 'package:avatar_map_navigation/hive_models/turn_log_model.dart';
 import 'package:avatar_map_navigation/hive_models/user_model.dart';
@@ -12,7 +10,7 @@ Future<void> addDummyData() async {
     final user = User(
       userId: 'U123456',
       trips: [
-        Trip(
+        TripLog(
           tripId: 'T20250624001',
           startTime: DateTime(2025, 6, 24, 9, 15),
           startLat: 19.0728,
@@ -30,7 +28,7 @@ Future<void> addDummyData() async {
               lat: 19.0761,
               long: 72.8790,
               timestamp: DateTime(2025, 6, 24, 9, 19),
-              direction: TurnDirection.right
+              direction: TurnDirection.right,
             ),
             TurnLog(
               lat: 19.0780,
@@ -45,7 +43,7 @@ Future<void> addDummyData() async {
           endReason: 'App closed manually by user',
           isTripCompleted: true,
         ),
-        Trip(
+        TripLog(
           tripId: 'T20250622001',
           startTime: DateTime(2025, 6, 22, 20, 0),
           startLat: 18.5204,

@@ -56,7 +56,7 @@ class _TripLogViewerScreenState extends State<TripLogViewerScreen3> {
     );
   }
 
-  Widget _buildTripCard(Trip trip, bool isOpen) {
+  Widget _buildTripCard(TripLog trip, bool isOpen) {
     final dateFormat = DateFormat('yyyy-MM-dd');
     final timeFormat = DateFormat('hh:mm a');
     Icon _iconForDirection(TurnDirection dir) {

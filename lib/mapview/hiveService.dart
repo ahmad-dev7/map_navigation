@@ -97,8 +97,8 @@ List<User> getDummyUsers() {
 }
 
 // Sample trip generator
-Trip getSampleTrip(String tripId) {
-  return Trip(
+TripLog getSampleTrip(String tripId) {
+  return TripLog(
     tripId: tripId,
     startTime: DateTime.now(),
     startLat: 19.0728,

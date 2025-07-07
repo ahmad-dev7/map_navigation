@@ -18,7 +18,7 @@ class UserAdapter extends TypeAdapter<User> {
     };
     return User(
       userId: fields[0] as String,
-      trips: (fields[1] as List).cast<Trip>(),
+      trips: (fields[1] as List).cast<TripLog>(),
     );
   }
 

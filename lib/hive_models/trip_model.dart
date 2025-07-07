@@ -4,7 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
  part 'trip_model.g.dart';
 
 @HiveType(typeId: 1)
-class Trip extends HiveObject {
+class TripLog extends HiveObject {
   @HiveField(0)
   String tripId;
 
@@ -41,7 +41,7 @@ class Trip extends HiveObject {
   @HiveField(11)
   bool isTripCompleted;
 
-  Trip({
+  TripLog({
     required this.tripId,
     required this.startTime,
     required this.startLat,
