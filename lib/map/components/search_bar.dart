@@ -1,3 +1,4 @@
+import 'package:avatar_map_navigation/hive_models/trip_model.dart';
 import 'package:avatar_map_navigation/map/controller.dart';
 import 'package:avatar_map_navigation/search_result_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -55,18 +56,39 @@ class RouteSearchBar extends StatelessWidget {
                   children:
                       destinationOptions.map((e) {
                         e as PlaceFeature;
+                        var destinationName =
+                            '${e.properties.name} ${e.properties.locality ?? ''} ${e.properties.district ?? ''}';
+
                         return ListTile(
-                          title: Text(
-                            '${e.properties.name} ${e.properties.locality ?? ''} ${e.properties.district ?? ''}',
-                          ),
-                          onTap: () {
+                          title: Text(destinationName),
+                          onTap: () async {
                             Get.log(e.geometry.coordinates.toString());
                             ctrl.searchController.close();
+                            var sourceName = await ctrl.getSourceLocationName();
+                            ctrl.tripLog.value = TripLog(
+                              tripId:
+                                  'T${DateTime.now().millisecondsSinceEpoch}',
+                              startTime: DateTime.now(),
+                              startLat: ctrl.userLocation.value!.latitude,
+                              startLong: ctrl.userLocation.value!.longitude,
+                              endLat: e.geometry.coordinates[1],
+                              endLong: e.geometry.coordinates[0],
+                              destinationsBefore: ['${sourceName[0]} ${sourceName[1]}'],
+                              destinationsDuring: [destinationName],
+                              turnLogs: [],
+                              endTime: DateTime.now(),endReason: 'App closed manually by user',
+                              isTripCompleted: false,
+                            );
+
+                            Get.log(
+                              "Values updated in tripLog: ${ctrl.tripLog.value.toString()}",
+                            );
 
                             ctrl.destinationLocation.value = LatLng(
                               e.geometry.coordinates[1],
                               e.geometry.coordinates[0],
                             );
+
                             ctrl.fetchRoutes(
                               destination: ctrl.destinationLocation.value!,
                             );

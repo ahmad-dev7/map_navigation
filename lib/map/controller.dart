@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+import 'package:avatar_map_navigation/hive_models/trip_model.dart';
 import 'package:avatar_map_navigation/map/components/route_model.dart';
 import 'package:avatar_map_navigation/map/components/route_selection_sheet.dart';
 import 'package:avatar_map_navigation/search_result_model.dart';
@@ -20,6 +21,7 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
   var mapController = MapControllerImpl();
   var userLocation = Rx<LatLng?>(null);
   var destinationLocation = Rx<LatLng?>(null);
+  var tripLog = Rx<TripLog?>(null);
   // for user location marker rotation
   var userHeading = 0.0.obs;
   var isNavigationStarted = false.obs;
@@ -546,6 +548,33 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
       isLoadingSearchOptions.value = false;
     }
   }
+  
+  // INFO: Get source location name using Nominatim
+  Future<List<String>> getSourceLocationName() async {
+  final lat = ctrl.userLocation.value!.latitude;
+  final lon = ctrl.userLocation.value!.longitude;
+
+  final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lon&format=json');
+
+  try {
+    final response = await http.get(url, headers: {
+      'User-Agent': 'YourAppName (your@email.com)' // Required by Nominatim
+    });
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final displayName = data['display_name'] as String?;
+      if (displayName != null) {
+        // You can split the display name if you want separate parts
+        return displayName.split(',').map((e) => e.trim()).toList();
+      }
+    }
+    return ['Unknown Location'];
+  } catch (e) {
+    print('Error fetching location name: $e');
+    return ['Unknown Location'];
+  }
+}
 
   // INFO: Fetch routes
   void fetchRoutes({LatLng? source, required LatLng destination}) async {

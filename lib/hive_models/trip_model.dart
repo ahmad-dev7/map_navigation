@@ -1,7 +1,7 @@
 import 'package:avatar_map_navigation/hive_models/turn_log_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
- part 'trip_model.g.dart';
+part 'trip_model.g.dart';
 
 @HiveType(typeId: 1)
 class TripLog extends HiveObject {
@@ -55,4 +55,25 @@ class TripLog extends HiveObject {
     this.endReason,
     this.isTripCompleted = false,
   });
+
+// This override is used to provide a string representation of the TripLog object to log the trip details easily in the console.
+  @override
+  String toString() {
+    return '''
+TripLog {
+  tripId: $tripId,
+  startTime: $startTime,
+  startLat: $startLat,
+  startLong: $startLong,
+  destinationsBefore: $destinationsBefore,
+  destinationsDuring: $destinationsDuring,
+  turnLogs: $turnLogs,
+  endLat: $endLat,
+  endLong: $endLong,
+  endTime: $endTime,
+  endReason: $endReason,
+  isTripCompleted: $isTripCompleted
+}
+''';
+  }
 }

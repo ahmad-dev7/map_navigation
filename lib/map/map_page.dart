@@ -51,7 +51,7 @@ class MapPage extends StatelessWidget {
             if (!ctrl.isNavigationStarted.value) RouteSearchBar(),
             if (ctrl.isNavigationStarted.value)
               Positioned(
-                bottom: 10,
+                bottom: context.mediaQueryPadding.bottom + 10,
                 right: 10,
                 child: ElevatedButton.icon(
                   onPressed: ctrl.stopNavigation,
@@ -60,7 +60,7 @@ class MapPage extends StatelessWidget {
                 ),
               ),
             Positioned(
-              bottom: 10,
+              bottom: context.mediaQueryPadding.bottom + 10,
               left: 10,
               child: ElevatedButton.icon(
                 onPressed: ctrl.recenter,
