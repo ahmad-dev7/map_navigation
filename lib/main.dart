@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       //home: MapPage(),
       home: SignUpScreen(),
-      //home: LoginScreen(),
+      // home: LoginScreen(),
     );
   }
 }

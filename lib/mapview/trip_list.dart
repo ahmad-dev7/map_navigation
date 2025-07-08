@@ -19,6 +19,7 @@ class TripLogViewerScreen3 extends StatefulWidget {
 
 class _TripLogViewerScreenState extends State<TripLogViewerScreen3> {
   final Set<String> _expanded = {};
+  final Set<String> _turnLogsExpanded = {};
 
   void _toggle(String id) {
     setState(() {
@@ -26,6 +27,15 @@ class _TripLogViewerScreenState extends State<TripLogViewerScreen3> {
         _expanded.remove(id);
       else
         _expanded.add(id);
+    });
+  }
+
+  void _toggleTurnLogs(String id) {
+    setState(() {
+      if (_turnLogsExpanded.contains(id))
+        _turnLogsExpanded.remove(id);
+      else
+        _turnLogsExpanded.add(id);
     });
   }
 
@@ -58,6 +68,8 @@ class _TripLogViewerScreenState extends State<TripLogViewerScreen3> {
   Widget _buildTripCard(TripLog trip, bool isOpen) {
     final dateFormat = DateFormat('yyyy-MM-dd');
     final timeFormat = DateFormat('hh:mm a');
+    final isTurnLogOpen = _turnLogsExpanded.contains(trip.tripId);
+
     // Icon _iconForDirection(TurnDirection dir) {
     //   switch (dir) {
     //     case TurnDirection.left:
@@ -143,54 +155,110 @@ class _TripLogViewerScreenState extends State<TripLogViewerScreen3> {
                   "📦 Destination (during trip):\n  - ${trip.destinationsDuring}",
                 ),
               const SizedBox(height: 8),
-              const Text(
-                "🔄 Turn Logs:",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  const Text(
+                    "🔄 Turn Logs:",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+
+                  Spacer(),
+                  TextButton.icon(
+                    icon: Icon(isTurnLogOpen
+                        ? Icons.expand_less
+                        : Icons.expand_more),
+                    label: Text(isTurnLogOpen ? 'Hide Logs' : 'View Logs'),
+                    onPressed: () => _toggleTurnLogs(trip.tripId),
+                  ),
+                ],
               ),
               const SizedBox(height: 4),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade400),
-                  borderRadius: BorderRadius.circular(8),
+              // Container(
+              //   decoration: BoxDecoration(
+              //     border: Border.all(color: Colors.grey.shade400),
+              //     borderRadius: BorderRadius.circular(8),
+              //   ),
+              //   child: Column(
+              //     children:
+              //         trip.turnLogs.map((log) {
+              //           return Padding(
+              //             padding: const EdgeInsets.symmetric(
+              //               vertical: 6.0,
+              //               horizontal: 8.0,
+              //             ),
+              //             child: Column(
+              //               crossAxisAlignment: CrossAxisAlignment.start,
+              //               children: [
+              //                 Text(
+              //                   "📝 Instruction: ${log.instruction}",
+              //                   style: const TextStyle(
+              //                     fontWeight: FontWeight.w500,
+              //                     fontSize: 14,
+              //                   ),
+              //                 ),
+              //                 const SizedBox(height: 4),
+              //                 Text(
+              //                   "📍 Lat: ${log.lat.toStringAsFixed(6)} | Long: ${log.long.toStringAsFixed(6)}",
+              //                   style: const TextStyle(fontSize: 13),
+              //                 ),
+              //                 const SizedBox(height: 4),
+              //                 Text(
+              //                   "🕒 ${timeFormat.format(log.timestamp)}",
+              //                   style: const TextStyle(
+              //                     fontSize: 13,
+              //                     color: Colors.grey,
+              //                   ),
+              //                 ),
+              //                 const Divider(thickness: 0.8),
+              //               ],
+              //             ),
+              //           );
+              //         }).toList(),
+              //   ),
+              // ),
+              if (isTurnLogOpen)
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade400),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    children: trip.turnLogs.map((log) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6.0,
+                          horizontal: 8.0,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "📝 Instruction: ${log.instruction}",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "📍 Lat: ${log.lat.toStringAsFixed(6)} | Long: ${log.long.toStringAsFixed(6)}",
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "🕒 ${timeFormat.format(log.timestamp)}",
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const Divider(thickness: 0.8),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
-                child: Column(
-                  children:
-                      trip.turnLogs.map((log) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 6.0,
-                            horizontal: 8.0,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "📝 Instruction: ${log.instruction}",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                "📍 Lat: ${log.lat.toStringAsFixed(6)} | Long: ${log.long.toStringAsFixed(6)}",
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                "🕒 ${timeFormat.format(log.timestamp)}",
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              const Divider(thickness: 0.8),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                ),
-              ),
               const SizedBox(height: 8),
               Row(
                 children: [

@@ -42,29 +42,28 @@ class _TripLogHomePageState extends State<TripLogHomePage> {
     return Scaffold(
 
 
-
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('🚗 Trip Log Viewer' , style: TextStyle(color: Colors.white),),
+        title: const Text('🚗 Trip Log Viewer', style: TextStyle(color: Colors.white),),
         backgroundColor: Colors.indigo,
         elevation: 0,
-        actions: [ElevatedButton(onPressed: () => Get.to(() => TripSessionScreen()), child: Text("Start New Trip"))],
-      ),      body: ValueListenableBuilder(
-        valueListenable: Hive.box<User>('users').listenable(),
-        builder: (context, Box<User> box, _) {
-          final user = box.get(loggedInUserId); // ✅ FIXED
+        // actions: [ElevatedButton(onPressed: () => Get.to(() => TripSessionScreen()), child: Text("Start New Trip"))],
+      ), body: ValueListenableBuilder(
+      valueListenable: Hive.box<User>('users').listenable(),
+      builder: (context, Box<User> box, _) {
+        final user = box.get(loggedInUserId); // ✅ FIXED
 
-          if (user == null) {
-            return const Center(child: Text('User not found.'));
-          }
+        if (user == null) {
+          return const Center(child: Text('User not found.'));
+        }
 
-          if (user.trips.isEmpty) {
-            return const Center(child: Text('No trips found.'));
-          }
+        if (user.trips.isEmpty) {
+          return const Center(child: Text('No trips found.'));
+        }
 
-          return TripLogViewerScreen3(user: user);
-        },
-      ),
+        return TripLogViewerScreen3(user: user);
+      },
+    ),
     );
   }
 }
