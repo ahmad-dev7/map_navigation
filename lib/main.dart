@@ -14,6 +14,10 @@ import 'map/map_page.dart';
 import 'mapview/dummy_data.dart';
 import 'mapview/hiveService.dart';
 
+// TODO NOTE:
+// User should be able to toggle turns log visibility similar to trip log
+// Remove thr [Start New Trip] button from triplog page
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -46,9 +50,9 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Map',
       debugShowCheckedModeBanner: false,
-      // home: MapPage(),
-      //home: SignUpScreen(),
-      home: LoginScreen(),
+      //home: MapPage(),
+      home: SignUpScreen(),
+      //home: LoginScreen(),
     );
   }
 }

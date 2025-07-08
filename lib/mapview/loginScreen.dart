@@ -1,3 +1,4 @@
+import 'package:avatar_map_navigation/map/map_page.dart';
 import 'package:avatar_map_navigation/mapview/triphome.dart';
 import 'package:avatar_map_navigation/mapview/userController.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      await Future.delayed(const Duration(seconds: 3));
+      await Future.delayed(const Duration(milliseconds: 500));
 
       String email = _emailController.text.trim();
 
@@ -37,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
       bool success = await userController.login(email);
 
       if (success) {
-        Get.to(() => TripLogHomePage()); // replaces current page
+        Get.to(() => MapPage()); // Navigate to MapPage on successful login,
       } else {
         // Show snackbar success or failure
         ScaffoldMessenger.of(context).showSnackBar(
@@ -163,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       backgroundColor: Colors.deepPurple,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Login', style: TextStyle(fontSize: 16)),
+                    child: const Text('Login', style: TextStyle(fontSize: 16,color:Colors.white)),
                   ),
                 ),
               ],

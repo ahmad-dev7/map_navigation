@@ -28,4 +28,17 @@ class TurnLog extends HiveObject {
     required this.direction,
     required this.instruction,
   });
+
+  @override
+  String toString() {
+    return '''
+TurnLog {
+  lat: $lat,
+  long: $long,
+  timestamp: $timestamp,
+  direction: $direction,
+  instruction: $instruction,
+}
+''';
+  }
 }

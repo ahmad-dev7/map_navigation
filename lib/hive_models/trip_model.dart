@@ -56,7 +56,7 @@ class TripLog extends HiveObject {
     this.isTripCompleted = false,
   });
 
-// This override is used to provide a string representation of the TripLog object to log the trip details easily in the console.
+  // This override is used to provide a string representation of the TripLog object to log the trip details easily in the console.
   @override
   String toString() {
     return '''

@@ -1,3 +1,4 @@
+import 'package:avatar_map_navigation/map/map_page.dart';
 import 'package:avatar_map_navigation/mapview/triphome.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,7 +34,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() => _isLoading = true);
 
       try {
-        await Future.delayed(const Duration(seconds: 3));
+        await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
 
         // Create a new user with 0 trips
         User newUser = User(userId: _emailController.text.trim(), trips: []);
@@ -43,7 +44,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         await HiveService.saveLoggedInUser(newUser.userId);
 
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Account created successfully!'), backgroundColor: Colors.green));
-        Get.to(() => TripLogHomePage()); // replaces current page
+        //Get.to(() => TripLogHomePage()); // replaces current page
+        Get.offAll(() => MapPage()); // navigates to TripLogHomePage and removes all previous pages from the stack
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Something went wrong'), backgroundColor: Colors.redAccent));
       }
@@ -188,7 +190,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       child: const Text(
                         "Log In",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

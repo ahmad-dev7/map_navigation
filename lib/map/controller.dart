@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:avatar_map_navigation/hive_models/trip_model.dart';
+import 'package:avatar_map_navigation/hive_models/turn_log_model.dart';
 import 'package:avatar_map_navigation/map/components/route_model.dart';
 import 'package:avatar_map_navigation/map/components/route_selection_sheet.dart';
+import 'package:avatar_map_navigation/mapview/hiveService.dart';
+import 'package:avatar_map_navigation/mapview/triphome.dart';
 import 'package:avatar_map_navigation/search_result_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
@@ -13,6 +16,7 @@ import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
+
 //TODO: visit stopNvaigation method for trip log flow [Line 735]
 late Controller ctrl;
 
@@ -171,6 +175,17 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
     } else {
       nextInstruction.value = "Destination reached";
     }
+    //! Updating turn logs
+    ctrl.tripLog.value?.turnLogs.add(
+      TurnLog(
+        lat: userLocation.value!.latitude,
+        long: userLocation.value!.longitude,
+        timestamp: DateTime.now(),
+        direction: TurnDirection.straight,
+        instruction: currentInstruction.value,
+      ),
+    );
+    Get.log(ctrl.tripLog.value.toString());
   }
 
   // Calculate distance to next instruction
@@ -548,33 +563,38 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
       isLoadingSearchOptions.value = false;
     }
   }
-  
+
   // INFO: Get source location name using Nominatim
   Future<List<String>> getSourceLocationName() async {
-  final lat = ctrl.userLocation.value!.latitude;
-  final lon = ctrl.userLocation.value!.longitude;
+    final lat = ctrl.userLocation.value!.latitude;
+    final lon = ctrl.userLocation.value!.longitude;
 
-  final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lon&format=json');
+    final url = Uri.parse(
+      'https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lon&format=json',
+    );
 
-  try {
-    final response = await http.get(url, headers: {
-      'User-Agent': 'YourAppName (your@email.com)' // Required by Nominatim
-    });
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'User-Agent': 'YourAppName (your@email.com)', // Required by Nominatim
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final displayName = data['display_name'] as String?;
-      if (displayName != null) {
-        // You can split the display name if you want separate parts
-        return displayName.split(',').map((e) => e.trim()).toList();
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final displayName = data['display_name'] as String?;
+        if (displayName != null) {
+          // You can split the display name if you want separate parts
+          return displayName.split(',').map((e) => e.trim()).toList();
+        }
       }
+      return ['Unknown Location'];
+    } catch (e) {
+      print('Error fetching location name: $e');
+      return ['Unknown Location'];
     }
-    return ['Unknown Location'];
-  } catch (e) {
-    print('Error fetching location name: $e');
-    return ['Unknown Location'];
   }
-}
 
   // INFO: Fetch routes
   void fetchRoutes({LatLng? source, required LatLng destination}) async {
@@ -764,15 +784,23 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
     // Stop marker animation
     _markerAnimationController.stop();
 
-    //TODO: Store trip log in Hive 
+    //TODO: Store trip log in Hive
+    ctrl.tripLog.value!.endTime = DateTime.now(); // Set end time
+    ctrl.tripLog.value!.endLat =
+        userLocation.value!.latitude; // Set end latitude
+    ctrl.tripLog.value!.endLong =
+        userLocation.value!.longitude; // Set end longitude
+    Get.log("final trip log: ${ctrl.tripLog.value!}");
+    storeTrip(ctrl.tripLog.value!);
+
     //INFO:  TurnDirection is enum with following values {right, left, uTurn, straight}
-    //! TripLog model 
+    //! TripLog model
     // TripLog(
     //       tripId: 'T20250624001', // current time stamp
     //       startTime: DateTime(2025, 6, 24, 9, 15), // Time when user clicks [Start Navigation]
-    //       startLat: 19.0728, // start location lat 
+    //       startLat: 19.0728, // start location lat
     //       startLong: 72.8826, // start location long
-    //       destinationsBefore: ['Gateway of India, Mumbai'], // 
+    //       destinationsBefore: ['Gateway of India, Mumbai'], //
     //       destinationsDuring: ['Marine Drive, Mumbai'],
     //       turnLogs: [
     //         TurnLog(
@@ -780,24 +808,12 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
     //           long: 72.8811,
     //           timestamp: DateTime(2025, 6, 24, 9, 17),
     //           direction: TurnDirection.left,
-    //         ),
-    //         TurnLog(
-    //           lat: 19.0761,
-    //           long: 72.8790,
-    //           timestamp: DateTime(2025, 6, 24, 9, 19),
-    //           direction: TurnDirection.right
-    //         ),
-    //         TurnLog(
-    //           lat: 19.0780,
-    //           long: 72.8765,
-    //           timestamp: DateTime(2025, 6, 24, 9, 22),
-    //           direction: TurnDirection.uTurn,
-    //         ),
+    //         )
     //       ],
     //       endLat: 19.0801, // last location lat
     //       endLong: 72.8750, // last location long
     //       endTime: DateTime(2025, 6, 24, 9, 30), // Time when this function was called [current time]
-    //       endReason: 'App closed manually by user', // Reason for ending trip  
+    //       endReason: 'App closed manually by user', // Reason for ending trip
     //       isTripCompleted: true, // true if user reached destination, false if trip was ended manually
     //     ),
 
@@ -813,6 +829,45 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
         hasGesture: false,
         source: MapEventSource.custom,
       );
+    }
+  }
+
+  // It stores the trip once it either stops manually or by reaching destination
+  void storeTrip(TripLog newTrip) async {
+    try {
+      final HiveService _hiveService = HiveService();
+      final userId = await _hiveService.getLoggedInUserId();
+      if (userId == null) {
+        print('❌ No logged-in user found!');
+        return;
+      }
+
+      final userBox = await _hiveService.getUserBox();
+      final user = userBox.get(userId);
+
+      if (user == null) {
+        print('❌ User not found in Hive for ID: $userId');
+        return;
+      }
+
+      user.trips = [
+        ...user.trips,
+        newTrip,
+      ]; // 🔁 reassign the list (not just add)
+      await userBox.put(userId, user); // ✅ now it will notify listeners
+      Get.log('Trip stored successfully for user: $userId');
+      Get.snackbar(
+        'Trip Stored',
+        'View trip log',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 5),
+        mainButton: TextButton(
+          onPressed: () => Get.to(() => TripLogHomePage()),
+          child: const Text('View Trip Log'),
+        ),
+      );
+    } catch (e) {
+      Get.log('Error storing trip: $e');
     }
   }
 
@@ -919,10 +974,13 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
         currentLatLng,
         actualDestination,
       );
-      if (distanceToDestination < 50) {
-        // 50 meter arrival threshold
+      if (distanceToDestination < 20) {
+        // 20 meter arrival threshold
+        ctrl.tripLog.value!.isTripCompleted = true;
+        ctrl.tripLog.value!.endReason = "Destination reached";
         stopNavigation();
         Get.snackbar('Navigation', 'You have reached your destination.');
+
         return;
       }
 

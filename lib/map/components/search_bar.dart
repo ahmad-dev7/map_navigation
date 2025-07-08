@@ -60,11 +60,15 @@ class RouteSearchBar extends StatelessWidget {
                             '${e.properties.name} ${e.properties.locality ?? ''} ${e.properties.district ?? ''}';
 
                         return ListTile(
-                          title: Text(destinationName),
+                          title: Text(destinationName), 
                           onTap: () async {
                             Get.log(e.geometry.coordinates.toString());
                             ctrl.searchController.close();
                             var sourceName = await ctrl.getSourceLocationName();
+                            ctrl.destinationLocation.value = LatLng(
+                              e.geometry.coordinates[1],
+                              e.geometry.coordinates[0],
+                            );
                             ctrl.tripLog.value = TripLog(
                               tripId:
                                   'T${DateTime.now().millisecondsSinceEpoch}',
@@ -73,20 +77,14 @@ class RouteSearchBar extends StatelessWidget {
                               startLong: ctrl.userLocation.value!.longitude,
                               endLat: e.geometry.coordinates[1],
                               endLong: e.geometry.coordinates[0],
-                              destinationsBefore: ['${sourceName[0]} ${sourceName[1]}'],
+                              destinationsBefore: [
+                                '${sourceName[0]} ${sourceName[1]}',
+                              ],
                               destinationsDuring: [destinationName],
                               turnLogs: [],
-                              endTime: DateTime.now(),endReason: 'App closed manually by user',
+                              endTime: DateTime.now(),
+                              endReason: 'Navigation stopped by user',
                               isTripCompleted: false,
-                            );
-
-                            Get.log(
-                              "Values updated in tripLog: ${ctrl.tripLog.value.toString()}",
-                            );
-
-                            ctrl.destinationLocation.value = LatLng(
-                              e.geometry.coordinates[1],
-                              e.geometry.coordinates[0],
                             );
 
                             ctrl.fetchRoutes(
