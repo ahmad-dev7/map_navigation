@@ -64,6 +64,18 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
   int _currentRouteSegmentIndex = 0;
   final Distance _distance = const Distance();
 
+  // Reroute specific variables
+  var isRerouteInProgress = false.obs;
+  var offRouteThreshold = 25.0; // meters
+  var offRouteCount = 0; // Counter to avoid false positives
+  var maxOffRouteCount = 3; // Trigger reroute after 3 consecutive off-route readings
+  List<LatLng> _originalRoutePoints = []; // Store original route
+  List<LatLng> _passedRoutePoints = []; // Points user has already passed
+  LatLng? _lastOnRoutePoint; // Last point where user was on route
+  LatLng? _rerouteStartPoint; // Point where reroute started
+  bool _hasRerouted = false; // Flag to track if reroute has occurred
+  List<LatLng> _rerouteConnectorPoints = []; // Points connecting old route to new route
+
   // Animation controllers for smooth marker movement
   late AnimationController _markerAnimationController;
   late Animation<double> _markerAnimation;
@@ -72,6 +84,7 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
   Timer? _animationTimer;
   StreamSubscription<Position>? _navigationStream;
 
+  
   @override
   void onInit() {
     super.onInit();
@@ -306,9 +319,14 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
     });
   }
 
-  // INFO: Enhanced polyline update with better route tracking (from my_controller)
+  // INFO: Enhanced polyline update with reroute support
   void _updatePolylinesEnhanced(LatLng currentLocation) {
     if (_fullRoutePolylinePoints.isEmpty) return;
+
+    // Check if user is off route and handle reroute
+    if (isNavigationStarted.value && !isRerouteInProgress.value) {
+      _checkAndHandleReroute(currentLocation);
+    }
 
     // Find the best segment on the route where user is located
     int bestSegmentIndex = _findBestRouteSegment(currentLocation);
@@ -323,43 +341,247 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
       )],
     );
 
-    if (distanceToRoute > 30) return; // Threshold for route accuracy
-
-    // Update current segment only if we've moved forward significantly
-    if (bestSegmentIndex > _currentRouteSegmentIndex ||
-        (bestSegmentIndex == _currentRouteSegmentIndex &&
-            distanceToRoute < 15)) {
-      _currentRouteSegmentIndex = bestSegmentIndex;
+    // If user is on route, update the segment index and track passed points
+    if (distanceToRoute <= offRouteThreshold) {
+      offRouteCount = 0; // Reset off-route counter
+      _lastOnRoutePoint = currentLocation;
+      
+      // Update current segment only if we've moved forward significantly
+      if (bestSegmentIndex > _currentRouteSegmentIndex ||
+          (bestSegmentIndex == _currentRouteSegmentIndex && distanceToRoute < 15)) {
+        
+        // Add passed points to the traveled route
+        if (!_hasRerouted) {
+          for (int i = _currentRouteSegmentIndex; i <= bestSegmentIndex; i++) {
+            if (i < _originalRoutePoints.length && 
+                !_passedRoutePoints.contains(_originalRoutePoints[i])) {
+              _passedRoutePoints.add(_originalRoutePoints[i]);
+            }
+          }
+        }
+        
+        _currentRouteSegmentIndex = bestSegmentIndex;
+      }
     }
 
-    polylines.clear();
+    _drawPolylines(currentLocation);
+  }
 
-    // Gray polyline: ENTIRE route from start to destination (static background)
-    polylines.add(
-      Polyline(
-        points: List<LatLng>.from(_fullRoutePolylinePoints),
-        color: Colors.grey.withOpacity(0.7),
-        strokeWidth: 6,
-      ),
+  // INFO: Check if user is off route and handle reroute
+  void _checkAndHandleReroute(LatLng currentLocation) {
+    if (_fullRoutePolylinePoints.isEmpty) return;
+
+    // Find closest point on route
+    double minDistanceToRoute = double.infinity;
+    for (int i = 0; i < _fullRoutePolylinePoints.length - 1; i++) {
+      double distance = _distanceToLineSegment(
+        currentLocation,
+        _fullRoutePolylinePoints[i],
+        _fullRoutePolylinePoints[i + 1],
+      );
+      if (distance < minDistanceToRoute) {
+        minDistanceToRoute = distance;
+      }
+    }
+
+    // Check if user is off route
+    if (minDistanceToRoute > offRouteThreshold) {
+      offRouteCount++;
+      Get.log('Off route count: $offRouteCount, Distance: ${minDistanceToRoute.toStringAsFixed(2)}m');
+      
+      // Trigger reroute if consistently off route
+      if (offRouteCount >= maxOffRouteCount) {
+        _triggerReroute(currentLocation);
+      }
+    } else {
+      offRouteCount = 0; // Reset counter when back on route
+    }
+  }
+
+  // INFO: Trigger reroute functionality
+  void _triggerReroute(LatLng currentLocation) async {
+    if (isRerouteInProgress.value || destinationLocation.value == null) return;
+
+    Get.log('Triggering reroute from: ${currentLocation.latitude}, ${currentLocation.longitude}');
+    isRerouteInProgress.value = true;
+    _rerouteStartPoint = currentLocation;
+
+    // Show reroute notification
+    Get.snackbar(
+      'Recalculating Route',
+      'Finding new route...',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.orange,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 2),
     );
 
-    // Blue polyline: from current user location to destination (dynamic overlay)
-    List<LatLng> remainingPoints = [currentLocation];
-
-    // Add remaining route points from current segment onwards
-    for (
-      int i = _currentRouteSegmentIndex + 1;
-      i < _fullRoutePolylinePoints.length;
-      i++
-    ) {
-      remainingPoints.add(_fullRoutePolylinePoints[i]);
-    }
-
-    // Only add blue polyline if we have more than just the current location
-    if (remainingPoints.length > 1) {
-      polylines.add(
-        Polyline(points: remainingPoints, color: Colors.blue, strokeWidth: 8),
+    try {
+      // Fetch new route from current location to destination
+      await _fetchRerouteFromCurrentLocation(currentLocation);
+      
+      // If reroute was successful, update tracking variables
+      if (!isRerouteInProgress.value) {
+        _hasRerouted = true;
+        offRouteCount = 0;
+        
+        // Create connector points if we have a last known on-route point
+        if (_lastOnRoutePoint != null && _rerouteStartPoint != null) {
+          _rerouteConnectorPoints = [_lastOnRoutePoint!, _rerouteStartPoint!];
+        }
+        
+        Get.log('Reroute completed successfully');
+      }
+    } catch (e) {
+      Get.log('Reroute failed: $e');
+      isRerouteInProgress.value = false;
+      Get.snackbar(
+        'Reroute Failed',
+        'Could not find new route. Please try again.',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
+    }
+  }
+
+  // INFO: Fetch new route from current location
+  Future<void> _fetchRerouteFromCurrentLocation(LatLng currentLocation) async {
+    var baseUrl = 'https://valhalla1.openstreetmap.de/route';
+    var body = {
+      "locations": [
+        {"lat": currentLocation.latitude, "lon": currentLocation.longitude},
+        {"lat": destinationLocation.value!.latitude, "lon": destinationLocation.value!.longitude},
+      ],
+      "costing": "auto",
+      "alternates": false, // Don't need alternates for reroute
+      "directions_options": {"units": "kilometers"},
+    };
+
+    try {
+      var response = await http.post(
+        Uri.parse(baseUrl),
+        body: jsonEncode(body),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        
+        // Parse new route
+        var newRoute = RouteModel.fromJson(data);
+        
+        if (newRoute.trip?.legs != null && newRoute.trip!.legs!.isNotEmpty) {
+          var encodedString = newRoute.trip!.legs!.first.shape ?? '';
+          
+          if (encodedString.isNotEmpty) {
+            var decodedPolyline = _decodePolyline(encodedString);
+            
+            if (decodedPolyline.isNotEmpty) {
+              // Update route with new polyline
+              _fullRoutePolylinePoints = decodedPolyline;
+              _currentRouteSegmentIndex = 0;
+              
+              // Update route in the routes list
+              if (selectedRouteIndex.value != -1 && selectedRouteIndex.value < routes.length) {
+                routes[selectedRouteIndex.value] = newRoute;
+                
+                // Update navigation instructions for new route
+                currentManeuvers.value = newRoute.trip!.legs!.first.maneuvers ?? [];
+                currentInstructionIndex.value = 0;
+                _updateCurrentInstruction();
+              }
+              
+              Get.log('New route loaded with ${decodedPolyline.length} points');
+            }
+          }
+        }
+        
+        isRerouteInProgress.value = false;
+      } else {
+        throw Exception('Failed to fetch reroute: ${response.statusCode}');
+      }
+    } catch (e) {
+      isRerouteInProgress.value = false;
+      throw e;
+    }
+  }
+
+  // INFO: Draw polylines with reroute support
+  void _drawPolylines(LatLng currentLocation) {
+    polylines.clear();
+
+    if (_hasRerouted) {
+      // Draw passed route points in gray (original route until reroute point)
+      // if (_passedRoutePoints.isNotEmpty) {
+      //   polylines.add(
+      //     Polyline(
+      //       points: List<LatLng>.from(_passedRoutePoints),
+      //       color: Colors.grey.withOpacity(0.7),
+      //       strokeWidth: 6,
+      //     ),
+      //   );
+      // }
+
+      // Draw connector line from last on-route point to reroute start point
+      // if (_rerouteConnectorPoints.isNotEmpty) {
+      //   polylines.add(
+      //     Polyline(
+      //       points: List<LatLng>.from(_rerouteConnectorPoints),
+      //       color: Colors.grey.withOpacity(0.7),
+      //       strokeWidth: 6,
+      //     ),
+      //   );
+      // }
+
+      // Draw new route from reroute start point to destination in blue
+      if (_fullRoutePolylinePoints.isNotEmpty) {
+        List<LatLng> newRoutePoints = [currentLocation];
+        
+        // Add remaining route points from current segment onwards
+        for (int i = _currentRouteSegmentIndex + 1; i < _fullRoutePolylinePoints.length; i++) {
+          newRoutePoints.add(_fullRoutePolylinePoints[i]);
+        }
+
+        if (newRoutePoints.length > 1) {
+          polylines.add(
+            Polyline(
+              points: newRoutePoints,
+              color: Colors.blue,
+              strokeWidth: 8,
+            ),
+          );
+        }
+      }
+    } else {
+      // Original behavior - no reroute has occurred
+      // Gray polyline: ENTIRE route from start to destination (static background)
+      // polylines.add(
+      //   Polyline(
+      //     points: List<LatLng>.from(_fullRoutePolylinePoints),
+      //     color: Colors.grey.withOpacity(0.7),
+      //     strokeWidth: 6,
+      //   ),
+      // );
+
+      // Blue polyline: from current user location to destination (dynamic overlay)
+      List<LatLng> remainingPoints = [currentLocation];
+
+      // Add remaining route points from current segment onwards
+      for (int i = _currentRouteSegmentIndex + 1; i < _fullRoutePolylinePoints.length; i++) {
+        remainingPoints.add(_fullRoutePolylinePoints[i]);
+      }
+
+      // Only add blue polyline if we have more than just the current location
+      if (remainingPoints.length > 1) {
+        polylines.add(
+          Polyline(
+            points: remainingPoints,
+            color: Colors.blue,
+            strokeWidth: 8,
+          ),
+        );
+      }
     }
 
     polylines.refresh();
@@ -835,14 +1057,14 @@ class Controller extends GetxController with GetTickerProviderStateMixin {
   // It stores the trip once it either stops manually or by reaching destination
   void storeTrip(TripLog newTrip) async {
     try {
-      final HiveService _hiveService = HiveService();
-      final userId = await _hiveService.getLoggedInUserId();
+      final HiveService hiveService = HiveService();
+      final userId = await hiveService.getLoggedInUserId();
       if (userId == null) {
         print('❌ No logged-in user found!');
         return;
       }
 
-      final userBox = await _hiveService.getUserBox();
+      final userBox = await hiveService.getUserBox();
       final user = userBox.get(userId);
 
       if (user == null) {

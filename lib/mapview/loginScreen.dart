@@ -1,9 +1,7 @@
 import 'package:avatar_map_navigation/map/map_page.dart';
-import 'package:avatar_map_navigation/mapview/triphome.dart';
 import 'package:avatar_map_navigation/mapview/userController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

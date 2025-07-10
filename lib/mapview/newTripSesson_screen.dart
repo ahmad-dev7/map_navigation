@@ -7,6 +7,8 @@ import 'package:get/get.dart';
 class TripSessionScreen extends StatelessWidget {
   final TripController controller = Get.put(TripController());
 
+   TripSessionScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     print('🖥️ TripSessionScreen built');

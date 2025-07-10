@@ -23,19 +23,21 @@ class _TripLogViewerScreenState extends State<TripLogViewerScreen3> {
 
   void _toggle(String id) {
     setState(() {
-      if (_expanded.contains(id))
+      if (_expanded.contains(id)) {
         _expanded.remove(id);
-      else
+      } else {
         _expanded.add(id);
+      }
     });
   }
 
   void _toggleTurnLogs(String id) {
     setState(() {
-      if (_turnLogsExpanded.contains(id))
+      if (_turnLogsExpanded.contains(id)) {
         _turnLogsExpanded.remove(id);
-      else
+      } else {
         _turnLogsExpanded.add(id);
+      }
     });
   }
 
@@ -146,14 +148,12 @@ class _TripLogViewerScreenState extends State<TripLogViewerScreen3> {
                 "📍 Start Location: Lat: ${trip.startLat} | Long: ${trip.startLong}",
               ),
               const SizedBox(height: 8),
-              if (trip.destinationsBefore != null)
-                Text(
-                  "📦 Destination (before start):\n  - ${trip.destinationsBefore}",
-                ),
-              if (trip.destinationsDuring != null)
-                Text(
-                  "📦 Destination (during trip):\n  - ${trip.destinationsDuring}",
-                ),
+              Text(
+                "📦 Destination (before start):\n  - ${trip.destinationsBefore}",
+              ),
+              Text(
+                "📦 Destination (during trip):\n  - ${trip.destinationsDuring}",
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [

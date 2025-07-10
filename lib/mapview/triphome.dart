@@ -1,11 +1,9 @@
 import 'package:avatar_map_navigation/hive_models/user_model.dart';
 import 'package:avatar_map_navigation/mapview/trip_list.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'hiveService.dart';
-import 'newTripSesson_screen.dart';
 
 class TripLogHomePage extends StatefulWidget {
   const TripLogHomePage({super.key});

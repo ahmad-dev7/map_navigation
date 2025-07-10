@@ -1,5 +1,4 @@
 import 'package:avatar_map_navigation/map/map_page.dart';
-import 'package:avatar_map_navigation/mapview/triphome.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

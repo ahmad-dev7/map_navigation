@@ -9,8 +9,8 @@ import 'package:flutter_map/flutter_map.dart';
 Marker getUserMarker() {
   return Marker(
     point: ctrl.userLocation.value!,
-    width: 30,
-    height: 30,
+    width: 35,
+    height: 35,
     alignment: Alignment.center,
     child: AnimatedContainer(
       duration: Durations.extralong1,
@@ -33,7 +33,7 @@ Marker getUserMarker() {
                   ? CupertinoIcons.location_north_fill
                   : Icons.circle,
               color: Colors.white,
-              size: 16,
+              size: 25,
             ),
           ),
         ),
@@ -45,8 +45,8 @@ Marker getUserMarker() {
 Marker getDestinationMarker() {
   return Marker(
     point: ctrl.destinationLocation.value!,
-    width: 40,
-    height: 40,
+    width: 65,
+    height: 65,
     alignment: Alignment.center,
     child: AnimatedContainer(
       duration: Durations.extralong1,
@@ -58,7 +58,7 @@ Marker getDestinationMarker() {
             color: Colors.white,
             border: Border.all(color: Colors.white, width: 2),
           ),
-          child: Icon(Icons.pin_drop, color: Colors.redAccent, size: 20),
+          child: Icon(Icons.pin_drop, color: Colors.redAccent, size: 30),
         ),
       ),
     ),

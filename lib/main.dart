@@ -1,7 +1,5 @@
 import 'package:avatar_map_navigation/map/controller.dart';
 import 'package:avatar_map_navigation/mapview/SignUp_screen.dart';
-import 'package:avatar_map_navigation/mapview/loginScreen.dart';
-import 'package:avatar_map_navigation/MultiRoute/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/instance_manager.dart';
@@ -10,8 +8,6 @@ import 'hive_models/enum_adapter.dart';
 import 'hive_models/trip_model.dart';
 import 'hive_models/turn_log_model.dart';
 import 'hive_models/user_model.dart';
-import 'map/map_page.dart';
-import 'mapview/dummy_data.dart';
 import 'mapview/hiveService.dart';
 
 // TODO NOTE:
